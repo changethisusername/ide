@@ -410,7 +410,7 @@ function loadRandomLanguage() {
         values.push($selectLanguage[0].options[i].value);
     }
     // $selectLanguage.dropdown("set selected", values[Math.floor(Math.random() * $selectLanguage[0].length)]);
-    $selectLanguage.dropdown("set selected", values[45]);
+    $selectLanguage.dropdown("set selected", values[28]);
     apiUrl = resolveApiUrl($selectLanguage.val());
     insertTemplate();
 }
@@ -712,9 +712,6 @@ $(document).ready(function () {
 });
 
 // Template Sources
-
-var pythonSource = "print(\"hello, world\")";
-
 var assemblySource = "\
 section	.text\n\
     global _start\n\
@@ -741,8 +738,6 @@ len	equ	$ - msg\n\
 var bashSource = "echo \"hello, world\"";
 
 var basicSource = "PRINT \"hello, world\"";
-
-var pythonSource = "print(\"hello, world\")";
 
 var cSource = "\
 // Powered by Judge0\n\
