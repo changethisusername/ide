@@ -712,6 +712,9 @@ $(document).ready(function () {
 });
 
 // Template Sources
+
+var pythonSource = "print(\"hello, world\")";
+
 var assemblySource = "\
 section	.text\n\
     global _start\n\
