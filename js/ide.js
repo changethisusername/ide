@@ -739,6 +739,8 @@ var bashSource = "echo \"hello, world\"";
 
 var basicSource = "PRINT \"hello, world\"";
 
+var pythonSource = "print(\"hello, world\")";
+
 var cSource = "\
 // Powered by Judge0\n\
 #include <stdio.h>\n\
