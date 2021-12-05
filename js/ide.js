@@ -1,5 +1,5 @@
 var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
-var PB_URL = "https://pb.judge0.com";
+var pbUrl = "https://pb.judge0.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
 var check_timeout = 300;
@@ -301,23 +301,56 @@ function downloadSource() {
 }
 
 function loadSavedSource() {
-    $.ajax({
-      url: PB_URL + "/" + getIdFromURI(),
-      type: "GET",
-      success: function(data, textStatus, jqXHR) {
-        sourceEditor.setValue(decode(data["source_code"] || ""));
-        inputEditor.setValue(decode(data["stdin"] || ""));
-        $selectLanguageBtn[0].value = data["language_id"];
-        setEditorMode();
-        focusAndSetCursorAtTheEnd();
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        alert("Code not found!");
-        window.history.replaceState(null, null, location.origin + location.pathname);
+    snippet_id = getIdFromURI();
+
+    if (snippet_id.length == 36) {
+        $.ajax({
+            url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
+            type: "GET",
+            success: function(data, textStatus, jqXHR) {
+                sourceEditor.setValue(decode(data["source_code"]));
+                $selectLanguage.dropdown("set selected", data["language_id"]);
+                $compilerOptions.val(data["compiler_options"]);
+                $commandLineArguments.val(data["command_line_arguments"]);
+                stdinEditor.setValue(decode(data["stdin"]));
+                stdoutEditor.setValue(decode(data["stdout"]));
+                stderrEditor.setValue(decode(data["stderr"]));
+                compileOutputEditor.setValue(decode(data["compile_output"]));
+                sandboxMessageEditor.setValue(decode(data["message"]));
+                var time = (data.time === null ? "-" : data.time + "s");
+                var memory = (data.memory === null ? "-" : data.memory + "KB");
+                $statusLine.html(`${data.status.description}, ${time}, ${memory}`);
+                changeEditorLanguage();
+            },
+            error: handleRunError
+        });
+    } else if (snippet_id.length == 4) {
+        $.ajax({
+            url: pbUrl + "/" + snippet_id + ".json",
+            type: "GET",
+            success: function (data, textStatus, jqXHR) {
+                sourceEditor.setValue(decode(data["source_code"]));
+                $selectLanguage.dropdown("set selected", data["language_id"]);
+                $compilerOptions.val(data["compiler_options"]);
+                $commandLineArguments.val(data["command_line_arguments"]);
+                stdinEditor.setValue(decode(data["stdin"]));
+                stdoutEditor.setValue(decode(data["stdout"]));
+                stderrEditor.setValue(decode(data["stderr"]));
+                compileOutputEditor.setValue(decode(data["compile_output"]));
+                sandboxMessageEditor.setValue(decode(data["sandbox_message"]));
+                $statusLine.html(decode(data["status_line"]));
+                changeEditorLanguage();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showError("Not Found", "Code not found!");
+                window.history.replaceState(null, null, location.origin + location.pathname);
+                loadRandomLanguage();
+            }
+        });
+    } else {
         loadRandomLanguage();
-      }
-    });
-  }
+    }
+}
 
 function run() {
     if (sourceEditor.getValue().trim() === "") {
