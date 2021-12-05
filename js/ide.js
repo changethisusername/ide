@@ -1,6 +1,7 @@
 var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
+var apiUrl = "https://ce.judge0.com";
+//var apiUrl = defaultUrl;
 var pbUrl = "https://pb.judge0.com";
-var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
 var check_timeout = 300;
 
