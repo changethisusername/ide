@@ -254,6 +254,7 @@ function getIdFromURI() {
   return uri.split("&")[0];
 }
 
+
 function save() {
     var content = JSON.stringify({
         source_code: encode(sourceEditor.getValue()),
@@ -321,11 +322,31 @@ function loadSavedSource() {
             },
             error: handleRunError
         });
-    } else {
-        loadRandomLanguage();
+    } else if (snippet_id.length == 4) {
+        $.ajax({
+            url: pbUrl + "/" + snippet_id + ".json",
+            type: "GET",
+            success: function (data, textStatus, jqXHR) {
+                sourceEditor.setValue(decode(data["source_code"]));
+                $selectLanguage.dropdown("set selected", data["language_id"]);
+                $compilerOptions.val(data["compiler_options"]);
+                $commandLineArguments.val(data["command_line_arguments"]);
+                stdinEditor.setValue(decode(data["stdin"]));
+                stdoutEditor.setValue(decode(data["stdout"]));
+                stderrEditor.setValue(decode(data["stderr"]));
+                compileOutputEditor.setValue(decode(data["compile_output"]));
+                sandboxMessageEditor.setValue(decode(data["sandbox_message"]));
+                $statusLine.html(decode(data["status_line"]));
+                changeEditorLanguage();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showError("Not Found", "Code not found!");
+                window.history.replaceState(null, null, location.origin + location.pathname);
+                loadRandomLanguage();
+            }
+        });
     }
 }
-
 function run() {
     if (sourceEditor.getValue().trim() === "") {
         showError("Error", "Source code can't be empty!");
