@@ -1,5 +1,5 @@
-var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
-//var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
+//var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
+var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
 var pbUrl = "https://pb.judge0.com";
