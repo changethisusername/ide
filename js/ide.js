@@ -259,38 +259,41 @@ function getIdFromURI() {
 
 function save() {
     var content = JSON.stringify({
-      source_code: encode(sourceEditor.getValue()),
-      stdin: encode(inputEditor.getValue()),
-      language_id: $selectLanguageBtn.val()
+        source_code: encode(sourceEditor.getValue()),
+        language_id: $selectLanguage.val(),
+        compiler_options: $compilerOptions.val(),
+        command_line_arguments: $commandLineArguments.val(),
+        stdin: encode(stdinEditor.getValue()),
+        stdout: encode(stdoutEditor.getValue()),
+        stderr: encode(stderrEditor.getValue()),
+        compile_output: encode(compileOutputEditor.getValue()),
+        sandbox_message: encode(sandboxMessageEditor.getValue()),
+        status_line: encode($statusLine.html())
     });
     var filename = "judge0-ide.json";
     var data = {
-      content: content,
-      filename: filename
+        content: content,
+        filename: filename
     };
-  
-    $saveBtn.button("loading");
+
     $.ajax({
-      url: PB_URL,
-      type: "POST",
-      async: true,
-      headers: {
-        "Accept": "application/json"
-      },
-      data: data,
-      success: function(data, textStatus, jqXHR) {
-        $saveBtn.button("reset");
-        if (getIdFromURI() != data["long"]) {
-          window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["long"]);
+        url: pbUrl,
+        type: "POST",
+        async: true,
+        headers: {
+            "Accept": "application/json"
+        },
+        data: data,
+        success: function (data, textStatus, jqXHR) {
+            if (getIdFromURI() != data["short"]) {
+                window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            handleError(jqXHR, textStatus, errorThrown);
         }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        handleError(jqXHR, textStatus, errorThrown);
-        $saveBtn.button("reset");
-      }
     });
-  }
-  
+}
 
 function downloadSource() {
     var value = parseInt($selectLanguage.val());
