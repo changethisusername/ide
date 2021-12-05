@@ -284,6 +284,9 @@ function save() {
             "Accept": "application/json"
         },
         data: data,
+        xhrFields: {
+            withCredentials: true
+        },
         success: function (data, textStatus, jqXHR) {
             if (getIdFromURI() != data["short"]) {
                 window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
@@ -458,7 +461,7 @@ function changeEditorLanguage() {
     currentLanguageId = parseInt($selectLanguage.val());
     $(".lm_title")[0].innerText = fileNames[currentLanguageId];
     apiUrl = resolveApiUrl($selectLanguage.val());
-    
+
 }
 
 function insertTemplate() {
