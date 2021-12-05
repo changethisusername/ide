@@ -1,6 +1,8 @@
 var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
+//var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
+var pbUrl = "https://pb.judge0.com";
 var check_timeout = 300;
 
 var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
@@ -347,6 +349,7 @@ function loadSavedSource() {
         });
     }
 }
+
 function run() {
     if (sourceEditor.getValue().trim() === "") {
         showError("Error", "Source code can't be empty!");
@@ -455,6 +458,7 @@ function changeEditorLanguage() {
     currentLanguageId = parseInt($selectLanguage.val());
     $(".lm_title")[0].innerText = fileNames[currentLanguageId];
     apiUrl = resolveApiUrl($selectLanguage.val());
+    
 }
 
 function insertTemplate() {
