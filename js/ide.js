@@ -1,7 +1,7 @@
 var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
+var PB_URL = "https://pb.judge0.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
-var PB_URL = "https://pb.judge0.com";
 var check_timeout = 300;
 
 var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
