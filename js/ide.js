@@ -1,8 +1,7 @@
-//var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
-var defaultUrl = localStorageGetItem("api-url") || "https://api.judge0.com";
+var defaultUrl = localStorageGetItem("api-url") || "https://ce.judge0.com";
 var apiUrl = defaultUrl;
 var wait = localStorageGetItem("wait") || false;
-var pbUrl = "https://pb.judge0.com";
+var PB_URL = "https://pb.judge0.com";
 var check_timeout = 300;
 
 var blinkStatusLine = ((localStorageGetItem("blink") || "true") === "true");
@@ -308,6 +307,7 @@ function loadSavedSource() {
 
     if (snippet_id.length == 36) {
         $.ajax({
+            url: PB_URL + "/" + getIdFromURI(),
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
             success: function(data, textStatus, jqXHR) {
