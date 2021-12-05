@@ -307,7 +307,6 @@ function loadSavedSource() {
 
     if (snippet_id.length == 36) {
         $.ajax({
-            url: PB_URL + "/" + getIdFromURI(),
             url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
             type: "GET",
             success: function(data, textStatus, jqXHR) {
@@ -329,7 +328,8 @@ function loadSavedSource() {
         });
     } else if (snippet_id.length == 4) {
         $.ajax({
-            url: pbUrl + "/" + snippet_id + ".json",
+            url: PB_URL + "/" + getIdFromURI(),
+            //url: pbUrl + "/" + snippet_id + ".json",
             type: "GET",
             success: function (data, textStatus, jqXHR) {
                 sourceEditor.setValue(decode(data["source_code"]));
