@@ -30,6 +30,7 @@ var $selectLanguage;
 var $compilerOptions;
 var $commandLineArguments;
 var $insertTemplateBtn;
+var $saveBtn
 var $runBtn;
 var $navigationMessage;
 var $updates;
@@ -258,44 +259,38 @@ function getIdFromURI() {
 
 function save() {
     var content = JSON.stringify({
-        source_code: encode(sourceEditor.getValue()),
-        language_id: $selectLanguage.val(),
-        compiler_options: $compilerOptions.val(),
-        command_line_arguments: $commandLineArguments.val(),
-        stdin: encode(stdinEditor.getValue()),
-        stdout: encode(stdoutEditor.getValue()),
-        stderr: encode(stderrEditor.getValue()),
-        compile_output: encode(compileOutputEditor.getValue()),
-        sandbox_message: encode(sandboxMessageEditor.getValue()),
-        status_line: encode($statusLine.html())
+      source_code: encode(sourceEditor.getValue()),
+      stdin: encode(inputEditor.getValue()),
+      language_id: $selectLanguageBtn.val()
     });
     var filename = "judge0-ide.json";
     var data = {
-        content: content,
-        filename: filename
+      content: content,
+      filename: filename
     };
-
+  
+    $saveBtn.button("loading");
     $.ajax({
-        url: pbUrl,
-        type: "POST",
-        async: true,
-        headers: {
-            "Accept": "application/json"
-        },
-        data: data,
-        xhrFields: {
-            withCredentials: true
-        },
-        success: function (data, textStatus, jqXHR) {
-            if (getIdFromURI() != data["short"]) {
-                window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["short"]);
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            handleError(jqXHR, textStatus, errorThrown);
+      url: PB_URL,
+      type: "POST",
+      async: true,
+      headers: {
+        "Accept": "application/json"
+      },
+      data: data,
+      success: function(data, textStatus, jqXHR) {
+        $saveBtn.button("reset");
+        if (getIdFromURI() != data["long"]) {
+          window.history.replaceState(null, null, location.origin + location.pathname + "?" + data["long"]);
         }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        handleError(jqXHR, textStatus, errorThrown);
+        $saveBtn.button("reset");
+      }
     });
-}
+  }
+  
 
 function downloadSource() {
     var value = parseInt($selectLanguage.val());
@@ -303,55 +298,23 @@ function downloadSource() {
 }
 
 function loadSavedSource() {
-    snippet_id = getIdFromURI();
-
-    if (snippet_id.length == 36) {
-        $.ajax({
-            url: apiUrl + "/submissions/" + snippet_id + "?fields=source_code,language_id,stdin,stdout,stderr,compile_output,message,time,memory,status,compiler_options,command_line_arguments&base64_encoded=true",
-            type: "GET",
-            success: function(data, textStatus, jqXHR) {
-                sourceEditor.setValue(decode(data["source_code"]));
-                $selectLanguage.dropdown("set selected", data["language_id"]);
-                $compilerOptions.val(data["compiler_options"]);
-                $commandLineArguments.val(data["command_line_arguments"]);
-                stdinEditor.setValue(decode(data["stdin"]));
-                stdoutEditor.setValue(decode(data["stdout"]));
-                stderrEditor.setValue(decode(data["stderr"]));
-                compileOutputEditor.setValue(decode(data["compile_output"]));
-                sandboxMessageEditor.setValue(decode(data["message"]));
-                var time = (data.time === null ? "-" : data.time + "s");
-                var memory = (data.memory === null ? "-" : data.memory + "KB");
-                $statusLine.html(`${data.status.description}, ${time}, ${memory}`);
-                changeEditorLanguage();
-            },
-            error: handleRunError
-        });
-    } else if (snippet_id.length == 4) {
-        $.ajax({
-            url: PB_URL + "/" + getIdFromURI(),
-            //url: pbUrl + "/" + snippet_id + ".json",
-            type: "GET",
-            success: function (data, textStatus, jqXHR) {
-                sourceEditor.setValue(decode(data["source_code"]));
-                $selectLanguage.dropdown("set selected", data["language_id"]);
-                $compilerOptions.val(data["compiler_options"]);
-                $commandLineArguments.val(data["command_line_arguments"]);
-                stdinEditor.setValue(decode(data["stdin"]));
-                stdoutEditor.setValue(decode(data["stdout"]));
-                stderrEditor.setValue(decode(data["stderr"]));
-                compileOutputEditor.setValue(decode(data["compile_output"]));
-                sandboxMessageEditor.setValue(decode(data["sandbox_message"]));
-                $statusLine.html(decode(data["status_line"]));
-                changeEditorLanguage();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                showError("Not Found", "Code not found!");
-                window.history.replaceState(null, null, location.origin + location.pathname);
-                loadRandomLanguage();
-            }
-        });
-    }
-}
+    $.ajax({
+      url: PB_URL + "/" + getIdFromURI(),
+      type: "GET",
+      success: function(data, textStatus, jqXHR) {
+        sourceEditor.setValue(decode(data["source_code"] || ""));
+        inputEditor.setValue(decode(data["stdin"] || ""));
+        $selectLanguageBtn[0].value = data["language_id"];
+        setEditorMode();
+        focusAndSetCursorAtTheEnd();
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert("Code not found!");
+        window.history.replaceState(null, null, location.origin + location.pathname);
+        loadRandomLanguage();
+      }
+    });
+  }
 
 function run() {
     if (sourceEditor.getValue().trim() === "") {
